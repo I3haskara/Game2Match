@@ -326,6 +326,35 @@ body {
   color: #fbe7ff;
 }
 
+.game-link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 78, 205, 0.4);
+  background: linear-gradient(135deg, rgba(255, 78, 205, 0.15), rgba(138, 78, 255, 0.15));
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.game-link-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 78, 205, 0.25), rgba(138, 78, 255, 0.25));
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 78, 205, 0.3);
+}
+
+.game-link-btn:active {
+  transform: translateY(0);
+}
+
 /* Explanations raw (optional) */
 .explanations {
   margin-top: 22px;

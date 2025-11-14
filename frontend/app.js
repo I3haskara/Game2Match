@@ -2,6 +2,7 @@ const API_BASE = "http://127.0.0.1:8000";
 
 const moodInput = document.getElementById("mood-input");
 const matchBtn = document.getElementById("match-btn");
+const clearBtn = document.getElementById("clear-btn");
 const statusEl = document.getElementById("status");
 const curatorEl = document.getElementById("curator");
 const resultsEl = document.getElementById("results");
@@ -45,6 +46,16 @@ chips.forEach((chip) => {
   });
 });
 
+// Clear button functionality
+clearBtn.addEventListener("click", () => {
+  moodInput.value = "";
+  resultsEl.innerHTML = "";
+  explanationsEl.textContent = "";
+  curatorEl.textContent = "";
+  statusEl.textContent = "Tip: mix mood + genre + dealbreakers, like \"cozy horror, no jumpscares, short sessions\".";
+  clearBtn.classList.add("hidden");
+});
+
 matchBtn.addEventListener("click", async () => {
   const prompt = moodInput.value.trim();
   if (!prompt) {
@@ -72,6 +83,7 @@ matchBtn.addEventListener("click", async () => {
     const data = await res.json();
     renderResults(data);
     statusEl.textContent = "Found a few matches for your vibe:";
+    clearBtn.classList.remove("hidden"); // Show clear button after successful search
   } catch (err) {
     console.error(err);
     statusEl.textContent =
@@ -102,6 +114,7 @@ function renderResults(data) {
     const whyText = lines[idx] || "";
     const quote = game.player_quote || "";
     const emoji = pickEmojiForGame(game);
+    const gameUrl = game.game_url || "#";
 
     const card = document.createElement("article");
     card.className = "card";
@@ -122,6 +135,13 @@ function renderResults(data) {
         ${
           whyText
             ? `<p class="card-why">${whyText}</p>`
+            : ""
+        }
+        ${
+          gameUrl && gameUrl !== "#"
+            ? `<a href="${gameUrl}" target="_blank" rel="noopener noreferrer" class="game-link-btn">
+                 🎮 View Game Page
+               </a>`
             : ""
         }
       </div>

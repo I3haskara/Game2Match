@@ -18,6 +18,8 @@ def load_games() -> List[Dict[str, Any]]:
                     "description": row["description"],
                     "genres": genres,
                     "tags": tags,
+                    "player_quote": row.get("player_quote", ""),
+                    "game_url": row.get("game_url", ""),
                 }
             )
     return games
