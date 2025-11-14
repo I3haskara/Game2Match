@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game2Match - Find Your Perfect Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 Game2Match</h1>
+            <p>Discover games tailored to your preferences</p>
+        </header>
+
+        <main>
+            <section class="input-section">
+                <h2>Tell us what you're looking for</h2>
+                <textarea 
+                    id="userPreferences" 
+                    placeholder="E.g., I want a relaxing game with beautiful graphics, preferably something I can play on my Switch..."
+                    rows="4"
+                ></textarea>
+                <button id="findGamesBtn" onclick="findGames()">Find Games</button>
+            </section>
+
+            <section id="loadingSection" class="loading hidden">
+                <p>Finding your perfect matches...</p>
+            </section>
+
+            <section id="resultsSection" class="results hidden">
+                <h2>Recommended Games</h2>
+                <div id="gameResults"></div>
+            </section>
+
+            <section id="errorSection" class="error hidden">
+                <p id="errorMessage"></p>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
