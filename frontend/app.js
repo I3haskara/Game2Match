@@ -9,39 +9,33 @@ const explanationsEl = document.getElementById("explanations");
 const chips = document.querySelectorAll(".chip");
 
 /**
- * Curator phrases keyed loosely by vibe / genre.
+ * Short, friendly curator lines.
  * {word} will be replaced with a vibe word inferred from genres/tags.
  */
 const CURATOR_LINES = {
   horror: [
-    "Ohhh, a {word} seeker. Respect – let me dig past the usual jump-scare junk.",
-    "Your taste screams cozy creep-core. These {word} picks should hit just right.",
-    "Spooky but soft? I got you. These {word} games are criminally under-talked about."
+    "Nice pick. These {word} games are spooky without being scream-y.",
+    "Soft scares, strong stories. These {word} gems should land well."
   ],
   cozy: [
-    "Big comfy vibes. These {word} games feel like a warm blanket and a good playlist.",
-    "Love that chill taste. Here's a batch of {word} gems you can sink into after a long day.",
-    "You radiate wholesome energy. These {word} picks are very 'self-care but with pixels'."
+    "Wholesome mood detected. These {word} picks are perfect after a long day.",
+    "Comfort games unlocked. These {word} titles are all tea-and-blanket energy."
   ],
   scifi: [
-    "Sci-fi brain detected. Let's lean into the weird with these {word} stories.",
-    "You're not here for space marines, you're here for strange little {word} worlds.",
-    "Dialing in some offbeat {word} science fiction from the backlog multiverse."
+    "Dialing in strange {word} worlds instead of loud space marines.",
+    "Good sci-fi taste. These {word} stories keep things weird in a good way."
   ],
   rpg: [
-    "You have main-character energy. These {word} picks should scratch that build-craft itch.",
-    "Okay, RPG enjoyer, I see you. Serving up {word} games people should talk about way more.",
-    "Big stat-brain vibes. These {word} titles are secretly goated."
+    "RPG brain activated. These {word} games are deep but not 200-hour grinds.",
+    "You like building characters. These {word} picks let you tinker without burnout."
   ],
   narrative: [
     "Story gamer spotted. These {word} games are basically interactive midnight podcasts.",
-    "You want feelings, not fetch quests. Here's a stack of {word} tales.",
-    "Dialogue > DPS. These {word} picks are heavy on vibes and writing."
+    "Less grind, more feelings. These {word} tales lean hard on narrative."
   ],
   default: [
-    "Nice prompt. I rummaged through the weird corner of the library for these {word} vibes.",
-    "Certified good taste detected. Here's a little {word} playlist from the backlog multiverse.",
-    "You ask for cool things. These {word} games deserve way more love than they get."
+    "Good taste. Here's a small {word} playlist pulled from the underrated pile.",
+    "Solid vibe. These {word} games deserve way more love than they get."
   ]
 };
 
@@ -54,12 +48,12 @@ chips.forEach((chip) => {
 matchBtn.addEventListener("click", async () => {
   const prompt = moodInput.value.trim();
   if (!prompt) {
-    statusEl.textContent = "Type a vibe or click a preset chip first.";
+    statusEl.textContent = "Tell me a vibe or tap a preset chip above.";
     curatorEl.textContent = "";
     return;
   }
 
-  statusEl.textContent = "Summoning hidden gems from the backlog multiverse… ✨";
+  statusEl.textContent = "Searching for hidden gems…";
   curatorEl.textContent = "";
   resultsEl.innerHTML = "";
   explanationsEl.textContent = "";
@@ -77,11 +71,11 @@ matchBtn.addEventListener("click", async () => {
 
     const data = await res.json();
     renderResults(data);
-    statusEl.textContent = "Here's your curated batch of underrated picks:";
+    statusEl.textContent = "Found a few matches for your vibe:";
   } catch (err) {
     console.error(err);
     statusEl.textContent =
-      "Something broke talking to the backend. Is the server running on port 8000?";
+      "I couldn't reach the backend. Make sure the server is running on port 8000.";
     curatorEl.textContent = "";
   }
 });
@@ -106,15 +100,16 @@ function renderResults(data) {
 
   results.forEach((game, idx) => {
     const whyText = lines[idx] || "";
+    const quote = game.player_quote || "";
+    const emoji = pickEmojiForGame(game);
+
     const card = document.createElement("article");
     card.className = "card";
-
-    const quote = game.player_quote || "";
 
     card.innerHTML = `
       <div class="card-content">
         <div class="card-title-row">
-          <h3 class="card-title">${game.title}</h3>
+          <h3 class="card-title">${emoji} ${game.title}</h3>
           <span class="pill">Hidden Gem</span>
         </div>
         <div class="card-genres">${(game.genres || []).join(" • ")}</div>
@@ -195,8 +190,7 @@ function inferVibeWordFromResults(results) {
 }
 
 /**
- * Pick a curator line template based on the vibe word,
- * then fill in {word}.
+ * Pick a curator line template based on the vibe word, then fill {word}.
  */
 function pickCuratorLine(vibeWord) {
   const vw = (vibeWord || "").toLowerCase();
@@ -209,7 +203,27 @@ function pickCuratorLine(vibeWord) {
   else if (vw.includes("story") || vw.includes("narrative")) bucket = "narrative";
 
   const options = CURATOR_LINES[bucket] || CURATOR_LINES.default;
-  const template = options[Math.floor(Math.random() * options.length)] || CURATOR_LINES.default[0];
+  const template =
+    options[Math.floor(Math.random() * options.length)] || CURATOR_LINES.default[0];
 
   return template.replace("{word}", vibeWord || "good-taste");
+}
+
+/**
+ * Choose an emoji for the card based on its genres/tags.
+ */
+function pickEmojiForGame(game) {
+  const genres = (game.genres || []).join(" ").toLowerCase();
+  const tags = (game.tags || []).join(" ").toLowerCase();
+  const text = `${genres} ${tags}`;
+
+  if (text.includes("horror")) return "👻";
+  if (text.includes("cozy") || text.includes("wholesome")) return "🧡";
+  if (text.includes("sci") || text.includes("space")) return "🛰️";
+  if (text.includes("rpg")) return "🧙‍♂️";
+  if (text.includes("puzzle") || text.includes("mystery")) return "🧩";
+  if (text.includes("platformer")) return "🕹️";
+  if (text.includes("adventure") || text.includes("narrative")) return "📖";
+
+  return "🎮";
 }
