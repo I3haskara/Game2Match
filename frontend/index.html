@@ -1,44 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game2Match - Find Your Perfect Game</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <title>Game2Match – Hidden Gem Game Finder</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🎮 Game2Match</h1>
-            <p>Discover games tailored to your preferences</p>
-        </header>
+  <div class="bg-overlay"></div>
 
-        <main>
-            <section class="input-section">
-                <h2>Tell us what you're looking for</h2>
-                <textarea 
-                    id="userPreferences" 
-                    placeholder="E.g., I want a relaxing game with beautiful graphics, preferably something I can play on my Switch..."
-                    rows="4"
-                ></textarea>
-                <button id="findGamesBtn" onclick="findGames()">Find Games</button>
-            </section>
+  <main class="shell">
+    <header class="header">
+      <div class="logo-row">
+        <div class="logo-dot"></div>
+        <h1 class="title">Game2Match</h1>
+      </div>
+      <p class="subtitle">
+        Tell us your vibe. We'll surface <span class="accent">underrated</span> games that actually fit.
+      </p>
+    </header>
 
-            <section id="loadingSection" class="loading hidden">
-                <p>Finding your perfect matches...</p>
-            </section>
+    <section class="input-panel">
+      <label class="prompt-label" for="mood-input">What are you in the mood for?</label>
+      <textarea id="mood-input" class="mood-input" rows="3"
+        placeholder="Example: I want a cozy but slightly creepy story game, short, no grind, single-player."></textarea>
 
-            <section id="resultsSection" class="results hidden">
-                <h2>Recommended Games</h2>
-                <div id="gameResults"></div>
-            </section>
+      <div class="chips-row">
+        <button class="chip" data-prompt="cozy horror, no jumpscares, story focused, short sessions">
+          Cozy Horror ☕👻
+        </button>
+        <button class="chip" data-prompt="short narrative adventure, emotional, no combat">
+          Short Narrative 🎭
+        </button>
+        <button class="chip" data-prompt="underrated indie action RPG, challenging but fair">
+          Indie Action ⚔️
+        </button>
+        <button class="chip" data-prompt="slow sci-fi mystery, exploration, puzzles, no shooting">
+          Slow Sci-Fi 🛰️
+        </button>
+      </div>
 
-            <section id="errorSection" class="error hidden">
-                <p id="errorMessage"></p>
-            </section>
-        </main>
-    </div>
+      <button id="match-btn" class="primary-btn">
+        🔍 Search Hidden Gems
+      </button>
 
-    <script src="app.js"></script>
+      <p id="status" class="status">
+        Tip: mix mood + genre + dealbreakers, like "cozy horror, no jumpscares, short sessions".
+      </p>
+      <p id="curator" class="curator"></p>
+    </section>
+
+    <section id="results" class="results">
+      <!-- Cards will be injected here -->
+    </section>
+
+    <section id="explanations" class="explanations">
+      <!-- Raw explanation text (optional) -->
+    </section>
+  </main>
+
+  <script src="app.js"></script>
 </body>
 </html>

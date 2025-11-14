@@ -1,12 +1,15 @@
 import os
 import requests
 from dotenv import load_dotenv
+from pathlib import Path
 
-load_dotenv()
+# Load .env from the backend directory
+env_path = Path(__file__).parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
 
 FRIENDLI_API_KEY = os.getenv("FRIENDLI_API_KEY")
 
-BASE_URL = "https://api.friendli.ai/v1/chat/completions"
+BASE_URL = "https://api.friendli.ai/serverless/v1/chat/completions"
 DEFAULT_MODEL = "meta-llama-3.1-8b-instruct"
 
 class FriendliClient:

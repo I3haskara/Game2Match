@@ -1,37 +1,79 @@
-from typing import List, Dict, Any
-import math
+import random
+from typing import List, Dict
 
-def score_game(game: Dict[str, Any], prefs: Dict[str, Any], user_prompt: str) -> float:
-    preferred_genres = [g.lower() for g in prefs.get("preferred_genres", [])]
-    style_tags = [t.lower() for t in prefs.get("style_tags", [])]
-    avoid_tags = [t.lower() for t in prefs.get("avoid_tags", [])]
-    score = 0.0
 
-    for pg in preferred_genres:
-        if any(pg in g.lower() for g in game["genres"]):
-            score += 2.0
+def _tokenize(text: str) -> set:
+    return set(
+        t.strip(".,!?;:()[]\"'").lower()
+        for t in text.split()
+        if t.strip()
+    )
 
-    for st in style_tags:
-        if any(st in t.lower() for t in game["tags"]):
-            score += 1.0
 
-    for at in avoid_tags:
-        if any(at in t.lower() for t in game["tags"]):
-            score -= 2.0
+def score_game(prompt_tokens: set, game: Dict) -> float:
+    """
+    Score a single game based on:
+    - overlap between prompt tokens and description/genres/tags
+    - hidden_gem flag
+    - lower popularity -> higher score
+    - plus a small random jitter so we get mix & match results
+    """
+    desc = (game.get("description") or "").lower()
+    genres = ";".join(game.get("genres", []))
+    tags = ";".join(game.get("tags", []))
 
-    user_words = [w.lower() for w in user_prompt.split() if len(w) > 3]
-    desc = game["description"].lower()
-    keyword_hits = sum(1 for w in user_words if w in desc)
-    score += min(keyword_hits * 0.3, 2.0)
+    text = " ".join([desc, genres, tags]).lower()
+    game_tokens = _tokenize(text)
 
+    # basic overlap score
+    overlap = len(prompt_tokens.intersection(game_tokens))
+
+    # hidden gem bonus
+    hidden = str(game.get("hidden_gem", "")).lower() == "yes"
+    hidden_bonus = 2.0 if hidden else 0.0
+
+    # popularity penalty (0–100; lower is better)
+    try:
+        popularity = float(game.get("popularity", 50))
+    except ValueError:
+        popularity = 50.0
+    pop_norm = min(max(popularity / 100.0, 0.0), 1.0)
+    pop_penalty = pop_norm  # subtract this later
+
+    # random jitter so each search mixes results a bit
+    jitter = random.uniform(-0.7, 0.7)
+
+    score = overlap + hidden_bonus - pop_penalty + jitter
     return score
 
-def select_top_games(
-    games: List[Dict[str, Any]],
-    prefs: Dict[str, Any],
-    user_prompt: str,
-    max_results: int = 3
-) -> List[Dict[str, Any]]:
-    scored = [(score_game(g, prefs, user_prompt), g) for g in games]
+
+def match_games(prompt: str, games: List[Dict], max_results: int = 3) -> List[Dict]:
+    """
+    Main entry point used by /recommend.
+
+    - If the prompt is empty: just return random hidden gems.
+    - Otherwise: compute a relevance score + random jitter
+      so each click feels like a fresh mix & match.
+    """
+    if not games:
+        return []
+
+    # No prompt → pure random hidden gems
+    if not prompt or not prompt.strip():
+        hidden = [g for g in games if str(g.get("hidden_gem", "")).lower() == "yes"]
+        pool = hidden or games
+        return random.sample(pool, k=min(max_results, len(pool)))
+
+    prompt_tokens = _tokenize(prompt)
+
+    # Score each game
+    scored = []
+    for g in games:
+        s = score_game(prompt_tokens, g)
+        scored.append((s, g))
+
+    # Sort by score (highest first) then take top N
     scored.sort(key=lambda x: x[0], reverse=True)
-    return [g for (s, g) in scored[:max_results]]
+    top = [g for _, g in scored[:max_results]]
+
+    return top
